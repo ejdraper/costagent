@@ -1,0 +1,77 @@
+= costagent
+
+* http://github.com/ejdraper/costagent
+
+== DESCRIPTION:
+
+costagent is a Ruby gem that provides lightweight access to the projects/timeslips part of the FreeAgent API, with a view to tracking billable hours and figures.
+
+== FEATURES/PROBLEMS:
+
+This isn't meant to be an entire Ruby library for the FA API - this is simply supposed to be a simple to use read-only view of timeslip data for keeping track of billable hours and calculating money earnt.
+
+This assumes that when calculating money earnt, you want it in GBP, and it only copes with calculating timeslips either in GBP, or in USD (which is converted using xe.com where possible).
+
+== SYNOPSIS:
+
+To initialize:
+
+costagent = CostAgent.new subdomain, username, password
+
+(remember you need to enable API access from within your FreeAgent account)
+
+To see all projects:
+
+projects = costagent.projects
+
+To find a specific project:
+
+project = costagent.project(id)
+
+To find timeslips:
+
+timeslips = costagent.timeslips(start_date, end_date)
+
+And to return a GBP figure of the money earnt during a specific timeframe based on billable hours:
+
+total = costagent.earnt(start_date, end_date)
+
+You can see the USD rate used for conversion:
+
+CostAgent.usd_rate
+
+This returns 1.6 if there is any error reaching or parsing xe.com. It's also stored once retrieved in a class variable so it doesn't keep querying everytime it's needed.
+
+== REQUIREMENTS:
+
+rest-client (1.5.0)
+hpricot (0.8.2)
+
+== INSTALL:
+
+gem install costagent
+
+== LICENSE:
+
+(The MIT License)
+
+Copyright (c) 2010 Elliott Draper <el@ejdraper.com>
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
