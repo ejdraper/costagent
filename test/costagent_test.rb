@@ -60,12 +60,14 @@ class CostAgentTest < Test::Unit::TestCase
 
   context "request to query timeslips" do
     setup do
-      setup_timeslips_test_response("view=2010-05-08_2010-05-10")
+      @start = DateTime.now - 1
+      @end = DateTime.now + 1
+      setup_timeslips_test_response("view=#{@start.strftime("%Y-%m-%d")}_#{@end.strftime("%Y-%m-%d")}")
       setup_projects_test_response
     end
 
     should "parse response for timeslips" do
-      timeslips = @costagent.timeslips(DateTime.now - 1, DateTime.now + 1)
+      timeslips = @costagent.timeslips(@start, @end)
       assert_equal 2, timeslips.length
       assert_equal 1, timeslips.first.id
       assert_equal 1, timeslips.first.project.id
@@ -80,12 +82,14 @@ class CostAgentTest < Test::Unit::TestCase
 
   context "request to query amount earnt" do
     setup do
-      setup_timeslips_test_response("view=2010-05-08_2010-05-10")
+      @start = DateTime.now - 1
+      @end = DateTime.now + 1
+      setup_timeslips_test_response("view=#{@start.strftime("%Y-%m-%d")}_#{@end.strftime("%Y-%m-%d")}")
       setup_projects_test_response
     end
 
     should "return the right amount for the timeslips" do
-      assert_equal 810.0, @costagent.earnt(DateTime.now - 1, DateTime.now + 1)
+      assert_equal 810.0, @costagent.earnt(@start, @end)
     end
   end
 
