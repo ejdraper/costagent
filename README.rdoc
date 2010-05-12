@@ -32,6 +32,10 @@ To find timeslips:
 
 timeslips = costagent.timeslips(start_date, end_date)
 
+To return all tasks for a specific project:
+
+tasks = costagent.tasks(project_id)
+
 And to return a GBP figure of the money earnt during a specific timeframe based on billable hours:
 
 total = costagent.earnt(start_date, end_date)
