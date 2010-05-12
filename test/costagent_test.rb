@@ -80,6 +80,24 @@ class CostAgentTest < Test::Unit::TestCase
     end
   end
 
+  context "request to query tasks for a given project" do
+    setup do
+      setup_tasks_test_response(1)
+      setup_projects_test_response
+    end
+
+    should "parse response for tasks" do
+      tasks = @costagent.tasks(@costagent.projects.first.id)
+      assert_equal 2, tasks.length
+      assert_equal 1, tasks.first.id
+      assert_equal 1, tasks.first.project.id
+      assert_equal "Development", tasks.first.name
+      assert_equal 2, tasks.last.id
+      assert_equal 1, tasks.last.project.id
+      assert_equal "Design", tasks.last.name
+    end
+  end
+
   context "request to query amount earnt" do
     setup do
       @start = DateTime.now - 1
@@ -138,6 +156,24 @@ EOF
 </timeslips>
 EOF
     setup_test_response(xml, "timeslips", parameters)
+  end
+
+  def setup_tasks_test_response(project_id)
+    xml =<<EOF
+<tasks>
+  <task>
+    <id>1</id>
+    <project-id>1</project-id>
+    <name>Development</name>
+  </task>
+  <task>
+    <id>2</id>
+    <project-id>1</project-id>
+    <name>Design</name>
+  </task>
+</tasks>
+EOF
+    setup_test_response(xml, "projects/#{project_id}/tasks")
   end
 
   def setup_test_response(xml, resource, parameters = nil)

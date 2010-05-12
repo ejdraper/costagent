@@ -8,6 +8,7 @@ require "open-uri"
 class CostAgent
   Project = Struct.new(:id, :name, :currency, :hourly_billing_rate)
   Timeslip = Struct.new(:id, :project, :hours, :date, :cost)
+  Task = Struct.new(:id, :name, :project)
 
   attr_accessor :subdomain, :username, :password
   
@@ -43,6 +44,18 @@ class CostAgent
                    hours,
                    DateTime.parse((timeslip/"updated-at").text),
                    project.hourly_billing_rate * hours)
+    end
+  end
+
+  # This returns all tasks for the specified project_id
+  def tasks(project_id)
+    (self.api("projects/#{project_id}/tasks")/"task").collect do |task|
+      # Find the project for this task
+      project = self.project((task/"project-id").text.to_i)
+      # Build the task out using the task data and the project it's tied to
+      Task.new((task/"id").text.to_i,
+                   (task/"name").text,
+                   project)
     end
   end
     
