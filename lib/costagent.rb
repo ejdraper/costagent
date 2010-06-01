@@ -58,6 +58,11 @@ class CostAgent
                    project)
     end
   end
+
+  # This looks up the user ID using the CostAgent credentials
+  def user_id
+    self.client("verify").get.headers[:user_id]
+  end
     
   # This returns the amount of GBP earnt in the specified timeframe
   def earnt(start_date = DateTime.now, end_date = start_date)

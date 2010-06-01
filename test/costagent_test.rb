@@ -124,6 +124,16 @@ class CostAgentTest < Test::Unit::TestCase
     end
   end
 
+  context "request to query user_id" do
+    setup do
+      setup_test_response("", "verify", nil, {:user_id => "12345"})
+    end
+    
+    should "make a call to the FA API to return the user_id" do
+      assert_equal "12345", @costagent.user_id
+    end
+  end
+
   def setup_projects_test_response
     xml =<<EOF
 <projects>
@@ -176,10 +186,10 @@ EOF
     setup_test_response(xml, "projects/#{project_id}/tasks")
   end
 
-  def setup_test_response(xml, resource, parameters = nil)
+  def setup_test_response(xml, resource, parameters = nil, headers = {})
     @costagent = CostAgent.new("subdomain", "username", "password")
     rest = Struct.new(nil).new
-    response = Struct.new(:body).new(xml)
+    response = Struct.new(:body, :headers).new(xml, headers)
     RestClient::Resource.expects(:new).with("https://subdomain.freeagentcentral.com/#{resource}#{parameters.nil? ? "" : "?" + parameters}", "username", "password").returns(rest)
     rest.expects(:get).returns(response)
   end
