@@ -72,10 +72,15 @@ class CostAgent
     
   # This calls the FA API for the specified resource
   def api(resource, parameters = {})
-    url = "https://#{self.subdomain}.freeagentcentral.com/#{resource}#{parameters.empty? ? "" : "?" + parameters.collect { |p| p.join("=") }.join("&")}"
-    res = RestClient::Resource.new(url, self.username, self.password).get
+    res = self.client(resource, parameters).get
     raise "No response from #{url}!" if res.body.nil? && res.body.empty?
     Hpricot(res.body)
+  end
+
+  # This returns a client ready to query the FA API
+  def client(resource, parameters = {})
+    url = "https://#{self.subdomain}.freeagentcentral.com/#{resource}#{parameters.empty? ? "" : "?" + parameters.collect { |p| p.join("=") }.join("&")}"
+    RestClient::Resource.new(url, self.username, self.password)
   end
 
   class << self
