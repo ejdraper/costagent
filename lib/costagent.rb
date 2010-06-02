@@ -24,7 +24,8 @@ class CostAgent
     
   # Returns all projects
   def projects(filter = "active")
-    @projects ||= (self.api("projects", {:view => filter})/"project").collect { |project| Project.new((project/"id").text.to_i, (project/"name").text, (project/"currency").text, (project/"normal-billing-rate").text.to_f) }
+    @projects ||= {}
+    @projects[filter] ||= (self.api("projects", {:view => filter})/"project").collect { |project| Project.new((project/"id").text.to_i, (project/"name").text, (project/"currency").text, (project/"normal-billing-rate").text.to_f) }
   end
     
   # This returns the specified project
