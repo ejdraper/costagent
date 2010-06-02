@@ -37,14 +37,18 @@ class CostAgent
     (self.api("timeslips", :view => "#{start_date.strftime("%Y-%m-%d")}_#{end_date.strftime("%Y-%m-%d")}")/"timeslip").collect do |timeslip|
       # Find the project and hours for this timeslip
       project = self.project((timeslip/"project-id").text.to_i)
-      hours = (timeslip/"hours").text.to_f
-      # Build the timeslip out using the timeslip data and the project it's tied to
-      Timeslip.new((timeslip/"id").text.to_i,
-                   project,
-                   hours,
-                   DateTime.parse((timeslip/"updated-at").text),
-                   project.hourly_billing_rate * hours)
-    end
+      if project
+        hours = (timeslip/"hours").text.to_f
+        # Build the timeslip out using the timeslip data and the project it's tied to
+        Timeslip.new((timeslip/"id").text.to_i,
+                     project,
+                     hours,
+                     DateTime.parse((timeslip/"updated-at").text),
+                     project.hourly_billing_rate * hours)
+      else
+        nil
+      end
+    end - [nil]
   end
 
   # This returns all tasks for the specified project_id
