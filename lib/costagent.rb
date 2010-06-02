@@ -23,13 +23,13 @@ class CostAgent
   end
     
   # Returns all projects
-  def projects
-    @projects ||= (self.api("projects")/"project").collect { |project| Project.new((project/"id").text.to_i, (project/"name").text, (project/"currency").text, (project/"normal-billing-rate").text.to_f) }
+  def projects(filter = "active")
+    @projects ||= (self.api("projects", {:view => filter})/"project").collect { |project| Project.new((project/"id").text.to_i, (project/"name").text, (project/"currency").text, (project/"normal-billing-rate").text.to_f) }
   end
     
   # This returns the specified project
   def project(id)
-    self.projects.detect { |p| p.id == id }
+    self.projects("all").detect { |p| p.id == id }
   end
 
   # This returns all timeslips for the specified date range, with additional cost information

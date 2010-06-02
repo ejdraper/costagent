@@ -34,7 +34,7 @@ class CostAgentTest < Test::Unit::TestCase
       assert_equal "password", costagent.password
     end
   end
-  
+
   context "request to query projects" do
     setup do
       setup_projects_test_response
@@ -42,6 +42,21 @@ class CostAgentTest < Test::Unit::TestCase
     
     should "parse response for projects" do
       projects = @costagent.projects
+      assert_equal 1, projects.length
+      assert_equal 1, projects.first.id
+      assert_equal "test project", projects.first.name
+      assert_equal "GBP", projects.first.currency
+      assert_equal 45.0, projects.first.hourly_billing_rate
+    end
+  end
+
+  context "request to query all projects" do
+    setup do
+      setup_projects_test_response("all")
+    end
+    
+    should "parse response for projects" do
+      projects = @costagent.projects("all")
       assert_equal 1, projects.length
       assert_equal 1, projects.first.id
       assert_equal "test project", projects.first.name
@@ -63,7 +78,7 @@ class CostAgentTest < Test::Unit::TestCase
       @start = DateTime.now - 1
       @end = DateTime.now + 1
       setup_timeslips_test_response("view=#{@start.strftime("%Y-%m-%d")}_#{@end.strftime("%Y-%m-%d")}")
-      setup_projects_test_response
+      setup_projects_test_response("all")
     end
 
     should "parse response for timeslips" do
@@ -83,11 +98,11 @@ class CostAgentTest < Test::Unit::TestCase
   context "request to query tasks for a given project" do
     setup do
       setup_tasks_test_response(1)
-      setup_projects_test_response
+      setup_projects_test_response("all")
     end
 
     should "parse response for tasks" do
-      tasks = @costagent.tasks(@costagent.projects.first.id)
+      tasks = @costagent.tasks(@costagent.projects("all").first.id)
       assert_equal 2, tasks.length
       assert_equal 1, tasks.first.id
       assert_equal 1, tasks.first.project.id
@@ -103,7 +118,7 @@ class CostAgentTest < Test::Unit::TestCase
       @start = DateTime.now - 1
       @end = DateTime.now + 1
       setup_timeslips_test_response("view=#{@start.strftime("%Y-%m-%d")}_#{@end.strftime("%Y-%m-%d")}")
-      setup_projects_test_response
+      setup_projects_test_response("all")
     end
 
     should "return the right amount for the timeslips" do
@@ -134,7 +149,7 @@ class CostAgentTest < Test::Unit::TestCase
     end
   end
 
-  def setup_projects_test_response
+  def setup_projects_test_response(filter = "active")
     xml =<<EOF
 <projects>
   <project>
@@ -145,7 +160,7 @@ class CostAgentTest < Test::Unit::TestCase
   </project>
 </projects>
 EOF
-    setup_test_response(xml, "projects")
+    setup_test_response(xml, "projects", "view=#{filter}")
   end
 
   def setup_timeslips_test_response(parameters)
