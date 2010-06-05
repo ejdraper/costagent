@@ -113,6 +113,19 @@ class CostAgentTest < Test::Unit::TestCase
     end
   end
 
+  context "request to query time worked" do
+    setup do
+      @start = DateTime.now - 1
+      @end = DateTime.now + 1
+      setup_timeslips_test_response("view=#{@start.strftime("%Y-%m-%d")}_#{@end.strftime("%Y-%m-%d")}")
+      setup_projects_test_response("all")
+    end
+
+    should "return the right time for the timeslips" do
+      assert_equal 18.0, @costagent.worked(@start, @end)
+    end
+  end
+  
   context "request to query amount earnt" do
     setup do
       @start = DateTime.now - 1

@@ -68,6 +68,13 @@ class CostAgent
   def user_id
     self.client("verify").get.headers[:user_id]
   end
+
+  # This returns the amount of hours worked
+  def worked(start_date = DateTime.now, end_date = start_date)
+    self.timeslips(start_date, end_date).collect do |timeslip|
+      timeslip.hours
+    end.inject(0) { |sum, i| sum += i }
+  end
     
   # This returns the amount of GBP earnt in the specified timeframe
   def earnt(start_date = DateTime.now, end_date = start_date)
