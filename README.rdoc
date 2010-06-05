@@ -44,6 +44,10 @@ To return your FA user ID:
 
 costagent.user_id
 
+To return a total of the amount of hours worked for a specific timeframe:
+
+hours = costagent.worked(start_date, end_date)
+
 And to return a GBP figure of the money earnt during a specific timeframe based on billable hours:
 
 total = costagent.earnt(start_date, end_date)
