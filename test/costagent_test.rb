@@ -104,10 +104,14 @@ class CostAgentTest < Test::Unit::TestCase
       assert_equal 1, timeslips.first.project.id
       assert_equal 10.0, timeslips.first.hours
       assert_equal 450.0, timeslips.first.cost
+      assert_equal "test comment", timeslips.first.comment
+      assert_equal "Locked", timeslips.first.status
       assert_equal 2, timeslips.last.id
       assert_equal 1, timeslips.last.project.id
       assert_equal 8.0, timeslips.last.hours
       assert_equal 360.0, timeslips.last.cost
+      assert_equal "test comment", timeslips.last.comment
+      assert_equal "Locked", timeslips.last.status
     end
   end
 
@@ -254,6 +258,8 @@ EOF
     <hours>10</hours>
     <updated-at>2010-05-09T14:25:57+01:00</updated-at>
     <dated-on>2010-05-09T14:25:57+01:00</dated-on>
+    <comment>test comment</comment>
+    <status>Locked</status>
   </timeslip>
   <timeslip>
     <id>2</id>
@@ -261,6 +267,8 @@ EOF
     <hours>8</hours>
     <updated-at>2010-05-09T23:45:01+01:00</updated-at>
     <dated-on>2010-05-09T23:45:01+01:00</dated-on>
+    <comment>test comment</comment>
+    <status>Locked</status>
   </timeslip>
 </timeslips>
 EOF

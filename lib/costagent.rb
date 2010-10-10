@@ -7,7 +7,7 @@ require "open-uri"
 #  This exposes additional billable tracking functionality around the Freeagent API
 class CostAgent
   Project = Struct.new(:id, :name, :currency, :hourly_billing_rate, :daily_billing_rate, :hours_per_day)
-  Timeslip = Struct.new(:id, :project, :hours, :date, :cost)
+  Timeslip = Struct.new(:id, :project, :hours, :date, :cost, :comment, :status)
   Task = Struct.new(:id, :name, :project)
   Invoice = Struct.new(:id, :project_id, :description, :reference, :amount, :status, :date, :due, :items)
   InvoiceItem = Struct.new(:id, :invoice_id, :project_id, :item_type, :description, :price, :quantity, :cost)
@@ -59,7 +59,9 @@ class CostAgent
                      project,
                      hours,
                      DateTime.parse((timeslip/"dated-on").text),
-                     project.hourly_billing_rate * hours)
+                     project.hourly_billing_rate * hours,
+                     (timeslip/"comment").text,
+                     (timeslip/"status").text)
       else
         nil
       end
