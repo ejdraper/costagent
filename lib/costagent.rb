@@ -9,6 +9,7 @@ class CostAgent
   Project = Struct.new(:id, :name, :currency, :hourly_billing_rate, :daily_billing_rate, :hours_per_day)
   Timeslip = Struct.new(:id, :project, :hours, :date, :cost)
   Task = Struct.new(:id, :name, :project)
+  Invoice = Struct.new(:id, :project_id, :description, :reference, :amount, :status, :date, :due)
 
   attr_accessor :subdomain, :username, :password
   
@@ -74,6 +75,28 @@ class CostAgent
                    (task/"name").text,
                    project)
     end
+  end
+
+  # This returns all invoices
+  def invoices
+    @invoices ||= (self.api("invoices")/"invoice").collect do |invoice|
+      Invoice.new(
+          (invoice/"id").text.to_i,
+          (invoice/"project-id").text.to_i,
+          (invoice/"description").text,
+          (invoice/"reference").text,
+          (invoice/"net-value").text.to_f,
+          (invoice/"status").text,
+          DateTime.parse((invoice/"dated-on").text),
+          DateTime.parse((invoice/"due-on").text)
+      )
+    end
+    @invoices
+  end
+
+  # This returns the specific invoice by ID
+  def invoice(id)
+    self.invoices.detect { |i| i.id == id }
   end
 
   # This looks up the user ID using the CostAgent credentials

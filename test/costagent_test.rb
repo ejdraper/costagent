@@ -178,6 +178,33 @@ class CostAgentTest < Test::Unit::TestCase
     end
   end
 
+  context "request to query all invoices" do
+    setup do
+      setup_invoices_test_response
+    end
+    
+    should "parse response for invoices" do
+      invoices = @costagent.invoices
+      assert_equal 1, invoices.length
+      assert_equal 1, invoices.first.id
+      assert_equal "test invoice", invoices.first.description
+      assert_equal "TEST001", invoices.first.reference
+      assert_equal 100.0, invoices.first.amount
+      assert_equal "Sent", invoices.first.status
+      assert_equal 1, invoices.first.project_id
+    end
+
+    should "lookup a single invoice" do
+      invoice = @costagent.invoice(1)
+      assert_equal 1, invoice.id
+      assert_equal "test invoice", invoice.description
+      assert_equal "TEST001", invoice.reference
+      assert_equal 100.0, invoice.amount
+      assert_equal "Sent", invoice.status
+      assert_equal 1, invoice.project_id
+    end
+  end
+
   def setup_projects_test_response(filter = "active")
     xml =<<EOF
 <projects>
@@ -240,6 +267,24 @@ EOF
 </tasks>
 EOF
     setup_test_response(xml, "projects/#{project_id}/tasks")
+  end
+
+  def setup_invoices_test_response
+    xml =<<EOF
+<invoices>
+  <invoice>
+    <id>1</id>
+    <project-id>1</project-id>
+    <description>test invoice</description>
+    <reference>TEST001</reference>
+    <net-value>100.0</net-value>
+    <status>Sent</status>
+    <dated-on>2010-10-09T07:16:00+01:00</dated-on>
+    <due-on>2010-10-16T00:00:00+01:00</due-on>
+  </invoice>
+</invoices>
+EOF
+    setup_test_response(xml, "invoices")
   end
 
   def setup_test_response(xml, resource, parameters = nil, headers = {})
