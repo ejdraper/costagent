@@ -40,6 +40,14 @@ To return all tasks for a specific project:
 
 tasks = costagent.tasks(project_id)
 
+To return all invoices for the account:
+
+invoices = costagent.invoices
+
+To lookup a specific invoice:
+
+invoice = costagent.invoice(id)
+
 To return your FA user ID:
 
 costagent.user_id
