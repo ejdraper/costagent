@@ -42,11 +42,19 @@ class CostAgentTest < Test::Unit::TestCase
     
     should "parse response for projects" do
       projects = @costagent.projects
-      assert_equal 1, projects.length
+      assert_equal 2, projects.length
       assert_equal 1, projects.first.id
       assert_equal "test project", projects.first.name
       assert_equal "GBP", projects.first.currency
       assert_equal 45.0, projects.first.hourly_billing_rate
+      assert_equal 360.0, projects.first.daily_billing_rate
+      assert_equal 8.0, projects.first.hours_per_day
+      assert_equal 2, projects.last.id
+      assert_equal "test project 2", projects.last.name
+      assert_equal "GBP", projects.last.currency
+      assert_equal 50.0, projects.last.hourly_billing_rate
+      assert_equal 400.0, projects.last.daily_billing_rate
+      assert_equal 8.0, projects.last.hours_per_day
     end
   end
 
@@ -57,11 +65,19 @@ class CostAgentTest < Test::Unit::TestCase
     
     should "parse response for projects" do
       projects = @costagent.projects("all")
-      assert_equal 1, projects.length
+      assert_equal 2, projects.length
       assert_equal 1, projects.first.id
       assert_equal "test project", projects.first.name
       assert_equal "GBP", projects.first.currency
       assert_equal 45.0, projects.first.hourly_billing_rate
+      assert_equal 360.0, projects.first.daily_billing_rate
+      assert_equal 8.0, projects.first.hours_per_day
+      assert_equal 2, projects.last.id
+      assert_equal "test project 2", projects.last.name
+      assert_equal "GBP", projects.last.currency
+      assert_equal 50.0, projects.last.hourly_billing_rate
+      assert_equal 400.0, projects.last.daily_billing_rate
+      assert_equal 8.0, projects.last.hours_per_day
     end
 
     should "lookup a single project" do
@@ -170,6 +186,16 @@ class CostAgentTest < Test::Unit::TestCase
     <name>test project</name>
     <currency>GBP</currency>
     <normal-billing-rate>45</normal-billing-rate>
+    <billing-period>hour</billing-period>
+    <hours-per-day>8.0</hours-per-day>
+  </project>
+  <project>
+    <id>2</id>
+    <name>test project 2</name>
+    <currency>GBP</currency>
+    <normal-billing-rate>400</normal-billing-rate>
+    <billing-period>day</billing-period>
+    <hours-per-day>8.0</hours-per-day>
   </project>
 </projects>
 EOF

@@ -6,7 +6,7 @@ require "open-uri"
 
 #  This exposes additional billable tracking functionality around the Freeagent API
 class CostAgent
-  Project = Struct.new(:id, :name, :currency, :hourly_billing_rate)
+  Project = Struct.new(:id, :name, :currency, :hourly_billing_rate, :daily_billing_rate, :hours_per_day)
   Timeslip = Struct.new(:id, :project, :hours, :date, :cost)
   Task = Struct.new(:id, :name, :project)
 
@@ -25,7 +25,19 @@ class CostAgent
   # Returns all projects
   def projects(filter = "active")
     @projects ||= {}
-    @projects[filter] ||= (self.api("projects", {:view => filter})/"project").collect { |project| Project.new((project/"id").text.to_i, (project/"name").text, (project/"currency").text, (project/"normal-billing-rate").text.to_f) }
+    @projects[filter] ||= (self.api("projects", {:view => filter})/"project").collect do |project|
+      billing_rate = (project/"normal-billing-rate").text.to_f
+      hours_per_day = (project/"hours-per-day").text.to_f
+      billing_period = (project/"billing-period").text
+      hourly_rate = (billing_period == "hour" ? billing_rate : billing_rate / hours_per_day)
+      daily_rate = (billing_period == "hour" ? billing_rate * hours_per_day : billing_rate)
+      Project.new((project/"id").text.to_i,
+                  (project/"name").text,
+                  (project/"currency").text,
+                  hourly_rate,
+                  daily_rate,
+                  hours_per_day)
+    end
   end
     
   # This returns the specified project
