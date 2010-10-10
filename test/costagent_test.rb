@@ -192,6 +192,14 @@ class CostAgentTest < Test::Unit::TestCase
       assert_equal 100.0, invoices.first.amount
       assert_equal "Sent", invoices.first.status
       assert_equal 1, invoices.first.project_id
+      assert_equal 1, invoices.first.items.first.id
+      assert_equal 1, invoices.first.items.first.invoice_id
+      assert_equal 1, invoices.first.items.first.project_id
+      assert_equal "Hours", invoices.first.items.first.item_type
+      assert_equal "test invoice item", invoices.first.items.first.description
+      assert_equal 45.0, invoices.first.items.first.price
+      assert_equal 12.0, invoices.first.items.first.quantity
+      assert_equal 540.0, invoices.first.items.first.cost
     end
 
     should "lookup a single invoice" do
@@ -202,6 +210,14 @@ class CostAgentTest < Test::Unit::TestCase
       assert_equal 100.0, invoice.amount
       assert_equal "Sent", invoice.status
       assert_equal 1, invoice.project_id
+      assert_equal 1, invoice.items.first.id
+      assert_equal 1, invoice.items.first.invoice_id
+      assert_equal 1, invoice.items.first.project_id
+      assert_equal "Hours", invoice.items.first.item_type
+      assert_equal "test invoice item", invoice.items.first.description
+      assert_equal 45.0, invoice.items.first.price
+      assert_equal 12.0, invoice.items.first.quantity
+      assert_equal 540.0, invoice.items.first.cost
     end
   end
 
@@ -281,6 +297,17 @@ EOF
     <status>Sent</status>
     <dated-on>2010-10-09T07:16:00+01:00</dated-on>
     <due-on>2010-10-16T00:00:00+01:00</due-on>
+    <invoice-items>
+      <invoice-item>
+        <id>1</id>
+        <invoice-id>1</invoice-id>
+        <project-id>1</project-id>
+        <item-type>Hours</item-type>
+        <description>test invoice item</description>
+        <price>45.0</price>
+        <quantity>12.0</quantity>
+      </invoice-item>
+    </invoice-items>
   </invoice>
 </invoices>
 EOF

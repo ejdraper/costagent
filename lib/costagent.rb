@@ -9,7 +9,8 @@ class CostAgent
   Project = Struct.new(:id, :name, :currency, :hourly_billing_rate, :daily_billing_rate, :hours_per_day)
   Timeslip = Struct.new(:id, :project, :hours, :date, :cost)
   Task = Struct.new(:id, :name, :project)
-  Invoice = Struct.new(:id, :project_id, :description, :reference, :amount, :status, :date, :due)
+  Invoice = Struct.new(:id, :project_id, :description, :reference, :amount, :status, :date, :due, :items)
+  InvoiceItem = Struct.new(:id, :invoice_id, :project_id, :item_type, :description, :price, :quantity, :cost)
 
   attr_accessor :subdomain, :username, :password
   
@@ -80,16 +81,30 @@ class CostAgent
   # This returns all invoices
   def invoices
     @invoices ||= (self.api("invoices")/"invoice").collect do |invoice|
+      items = (invoice/"invoice-item").collect do |item|
+        price = (item/"price").first.inner_text.to_f
+        quantity = (item/"quantity").first.inner_text.to_f
+        cost = price * quantity
+        InvoiceItem.new(
+          (item/"id").first.inner_text.to_i,
+          (item/"invoice-id").first.inner_text.to_i,
+          (item/"project-id").first.inner_text.to_i,
+          (item/"item-type").first.inner_text,
+          (item/"description").first.inner_text,
+          price,
+          quantity,
+          cost)
+      end
       Invoice.new(
-          (invoice/"id").text.to_i,
-          (invoice/"project-id").text.to_i,
-          (invoice/"description").text,
-          (invoice/"reference").text,
-          (invoice/"net-value").text.to_f,
-          (invoice/"status").text,
-          DateTime.parse((invoice/"dated-on").text),
-          DateTime.parse((invoice/"due-on").text)
-      )
+        (invoice/"id").first.inner_text.to_i,
+        (invoice/"project-id").first.inner_text.to_i,
+        (invoice/"description").first.inner_text,
+        (invoice/"reference").text,
+        (invoice/"net-value").text.to_f,
+        (invoice/"status").text,
+        DateTime.parse((invoice/"dated-on").text),
+        DateTime.parse((invoice/"due-on").text),
+        items)
     end
     @invoices
   end
