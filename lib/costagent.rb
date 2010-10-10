@@ -44,7 +44,7 @@ class CostAgent
         Timeslip.new((timeslip/"id").text.to_i,
                      project,
                      hours,
-                     DateTime.parse((timeslip/"updated-at").text),
+                     DateTime.parse((timeslip/"dated-on").text),
                      project.hourly_billing_rate * hours)
       else
         nil

@@ -2,7 +2,7 @@ require "rubygems"
 require "test/unit"
 require "shoulda"
 require "mocha"
-require File.join(File.dirname(__FILE__), "..", "lib", "costagent")
+require File.join(File.expand_path(File.dirname(__FILE__)), "..", "lib", "costagent")
 
 class CostAgentTest < Test::Unit::TestCase
   context "initializing costagent" do
@@ -184,12 +184,14 @@ EOF
     <project-id>1</project-id>
     <hours>10</hours>
     <updated-at>2010-05-09T14:25:57+01:00</updated-at>
+    <dated-on>2010-05-09T14:25:57+01:00</dated-on>
   </timeslip>
   <timeslip>
     <id>2</id>
     <project-id>1</project-id>
     <hours>8</hours>
     <updated-at>2010-05-09T23:45:01+01:00</updated-at>
+    <dated-on>2010-05-09T23:45:01+01:00</dated-on>
   </timeslip>
 </timeslips>
 EOF
