@@ -13,7 +13,7 @@ task :default => ["test"]
 spec = Gem::Specification.new do |s|
 
   s.name              = "costagent"
-  s.version           = "0.1.5"
+  s.version           = "0.1.6"
   s.summary           = "costagent is a Ruby gem that provides lightweight access to the projects/timeslips part of the FreeAgent API, with a view to tracking billable hours and figures."
   s.author            = "Elliott Draper"
   s.email             = "el@ejdraper.com"
