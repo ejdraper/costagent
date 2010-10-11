@@ -102,12 +102,14 @@ class CostAgentTest < Test::Unit::TestCase
       assert_equal 2, timeslips.length
       assert_equal 1, timeslips.first.id
       assert_equal 1, timeslips.first.project.id
+      assert_equal 1, timeslips.first.task.id
       assert_equal 10.0, timeslips.first.hours
       assert_equal 450.0, timeslips.first.cost
       assert_equal "test comment", timeslips.first.comment
       assert_equal "Locked", timeslips.first.status
       assert_equal 2, timeslips.last.id
       assert_equal 1, timeslips.last.project.id
+      assert_equal 1, timeslips.last.task.id
       assert_equal 8.0, timeslips.last.hours
       assert_equal 360.0, timeslips.last.cost
       assert_equal "test comment", timeslips.last.comment
@@ -128,14 +130,14 @@ class CostAgentTest < Test::Unit::TestCase
       assert_equal 1, tasks.first.project.id
       assert_equal "Development", tasks.first.name
       assert_equal 45.0, tasks.first.hourly_billing_rate
-      assert_equal 0.0, tasks.first.daily_billing_rate
-      assert_equal true, tasks.first.billable?
+      assert_equal 360.0, tasks.first.daily_billing_rate
+      assert_equal true, tasks.first.billable
       assert_equal 2, tasks.last.id
       assert_equal 1, tasks.last.project.id
       assert_equal "Design", tasks.last.name
       assert_equal 0.0, tasks.last.hourly_billing_rate
       assert_equal 0.0, tasks.last.daily_billing_rate
-      assert_equal false, tasks.last.billable?
+      assert_equal false, tasks.last.billable
     end
   end
 
@@ -261,6 +263,7 @@ EOF
   <timeslip>
     <id>1</id>
     <project-id>1</project-id>
+    <task-id>1</task-id>
     <hours>10</hours>
     <updated-at>2010-05-09T14:25:57+01:00</updated-at>
     <dated-on>2010-05-09T14:25:57+01:00</dated-on>
@@ -270,6 +273,7 @@ EOF
   <timeslip>
     <id>2</id>
     <project-id>1</project-id>
+    <task-id>1</task-id>
     <hours>8</hours>
     <updated-at>2010-05-09T23:45:01+01:00</updated-at>
     <dated-on>2010-05-09T23:45:01+01:00</dated-on>
@@ -279,6 +283,8 @@ EOF
 </timeslips>
 EOF
     setup_test_response(xml, "timeslips", parameters)
+    setup_tasks_test_response(1)
+    setup_tasks_test_response(1)
   end
 
   def setup_tasks_test_response(project_id)

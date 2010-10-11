@@ -7,8 +7,8 @@ require "open-uri"
 #  This exposes additional billable tracking functionality around the Freeagent API
 class CostAgent
   Project = Struct.new(:id, :name, :currency, :hourly_billing_rate, :daily_billing_rate, :hours_per_day)
-  Timeslip = Struct.new(:id, :project, :hours, :date, :cost, :comment, :status)
-  Task = Struct.new(:id, :name, :project, :hourly_billing_rate, :daily_billing_rate, :billable?)
+  Timeslip = Struct.new(:id, :project, :task, :hours, :date, :cost, :comment, :status)
+  Task = Struct.new(:id, :name, :project, :hourly_billing_rate, :daily_billing_rate, :billable)
   Invoice = Struct.new(:id, :project_id, :description, :reference, :amount, :status, :date, :due, :items)
   InvoiceItem = Struct.new(:id, :invoice_id, :project_id, :item_type, :description, :price, :quantity, :cost)
 
@@ -53,13 +53,16 @@ class CostAgent
       # Find the project and hours for this timeslip
       project = self.project((timeslip/"project-id").text.to_i)
       if project
+        task = self.tasks(project.id).detect { |t| t.id == (timeslip/"task-id").text.to_i }
         hours = (timeslip/"hours").text.to_f
+        cost = (task.nil? ? project : task).hourly_billing_rate * hours
         # Build the timeslip out using the timeslip data and the project it's tied to
         Timeslip.new((timeslip/"id").text.to_i,
                      project,
+                     task,
                      hours,
                      DateTime.parse((timeslip/"dated-on").text),
-                     project.hourly_billing_rate * hours,
+                     cost,
                      (timeslip/"comment").text,
                      (timeslip/"status").text)
       else
