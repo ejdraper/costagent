@@ -8,7 +8,7 @@ require "open-uri"
 class CostAgent
   Project = Struct.new(:id, :name, :currency, :hourly_billing_rate, :daily_billing_rate, :hours_per_day)
   Timeslip = Struct.new(:id, :project, :hours, :date, :cost, :comment, :status)
-  Task = Struct.new(:id, :name, :project)
+  Task = Struct.new(:id, :name, :project, :hourly_billing_rate, :daily_billing_rate, :billable?)
   Invoice = Struct.new(:id, :project_id, :description, :reference, :amount, :status, :date, :due, :items)
   InvoiceItem = Struct.new(:id, :invoice_id, :project_id, :item_type, :description, :price, :quantity, :cost)
 
@@ -73,10 +73,18 @@ class CostAgent
     (self.api("projects/#{project_id}/tasks")/"task").collect do |task|
       # Find the project for this task
       project = self.project((task/"project-id").text.to_i)
+      # Calculate rates
+      billing_rate = (task/"billing-rate").text.to_f
+      billing_period = (task/"billing-period").text
+      hourly_rate = (billing_period == "hour" ? billing_rate : billing_rate / project.hours_per_day)
+      daily_rate = (billing_period == "hour" ? billing_rate * project.hours_per_day : billing_rate)
       # Build the task out using the task data and the project it's tied to
       Task.new((task/"id").text.to_i,
                    (task/"name").text,
-                   project)
+                   project,
+                   hourly_rate,
+                   daily_rate,
+                   (task/"is-billable").text == "true")
     end
   end
 

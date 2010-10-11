@@ -127,9 +127,15 @@ class CostAgentTest < Test::Unit::TestCase
       assert_equal 1, tasks.first.id
       assert_equal 1, tasks.first.project.id
       assert_equal "Development", tasks.first.name
+      assert_equal 45.0, tasks.first.hourly_billing_rate
+      assert_equal 0.0, tasks.first.daily_billing_rate
+      assert_equal true, tasks.first.billable?
       assert_equal 2, tasks.last.id
       assert_equal 1, tasks.last.project.id
       assert_equal "Design", tasks.last.name
+      assert_equal 0.0, tasks.last.hourly_billing_rate
+      assert_equal 0.0, tasks.last.daily_billing_rate
+      assert_equal false, tasks.last.billable?
     end
   end
 
@@ -282,11 +288,17 @@ EOF
     <id>1</id>
     <project-id>1</project-id>
     <name>Development</name>
+    <billing-period>hour</billing-period>
+    <billing-rate>45.0</billing-rate>
+    <is-billable>true</is-billable>
   </task>
   <task>
     <id>2</id>
     <project-id>1</project-id>
     <name>Design</name>
+    <billing-period>hour</billing-period>
+    <billing-rate>0.0</billing-rate>
+    <is-billable>false</is-billable>
   </task>
 </tasks>
 EOF
