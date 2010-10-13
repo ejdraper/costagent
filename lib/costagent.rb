@@ -29,6 +29,7 @@ class CostAgent
   class Task < Base; end
   class Invoice < Base; end
   class InvoiceItem < Base; end
+  class User < Base; end
 
   # Our configuration for FA access
   attr_accessor :subdomain, :username, :password
@@ -181,9 +182,20 @@ class CostAgent
     self.invoices.detect { |i| i.id == id }
   end
 
+  # This contains the logged in user information for the configured credentials
+  def user(reload = false)
+    self.cache(CostAgent::User, self.username, reload) do
+      data = self.client("verify").get.headers
+      [User.new(
+        :id => data[:user_id],
+        :permissions => data[:user_permission_level],
+        :company_type => data[:company_type])]
+    end.first
+  end
+
   # This looks up the user ID using the CostAgent credentials
   def user_id
-    self.client("verify").get.headers[:user_id]
+    self.user.id
   end
 
   # This returns the amount of hours worked

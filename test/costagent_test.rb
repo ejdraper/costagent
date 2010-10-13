@@ -221,14 +221,16 @@ class CostAgentTest < Test::Unit::TestCase
     end
   end
 
-  context "request to query user_id" do
+  context "request to verify credentials and query user details" do
     setup do
       CostAgent.cache_provider.clear!
-      setup_test_response("", "verify", nil, {:user_id => "12345"})
+      setup_test_response("", "verify", nil, {:user_id => 12345, :user_permission_level => 8, :company_type => "UkSoleTrader"})
     end
     
-    should "make a call to the FA API to return the user_id" do
-      assert_equal "12345", @costagent.user_id
+    should "make a call to the FA API" do
+      assert_equal 12345, @costagent.user.id
+      assert_equal 8, @costagent.user.permissions
+      assert_equal "UkSoleTrader", @costagent.user.company_type
     end
   end
 
