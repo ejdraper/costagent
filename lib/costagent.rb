@@ -153,7 +153,7 @@ class CostAgent
           InvoiceItem.new(
             :id => (item/"id").first.inner_text.to_i,
             :invoice_id => (item/"invoice-id").first.inner_text.to_i,
-            :project_id => project.id,
+            :project_id => project.nil? ? nil : project.id,
             :project => project,
             :item_type => (item/"item-type").first.inner_text,
             :description => (item/"description").first.inner_text,
@@ -164,7 +164,7 @@ class CostAgent
         project = self.project((invoice/"project-id").first.inner_text.to_i)
         Invoice.new(
           :id => (invoice/"id").first.inner_text.to_i,
-          :project_id => project.id,
+          :project_id => project.nil? ? nil : project.id,
           :project => project,
           :description => (invoice/"description").first.inner_text,
           :reference => (invoice/"reference").text,
