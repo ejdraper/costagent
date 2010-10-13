@@ -5,6 +5,34 @@ require "mocha"
 require File.join(File.expand_path(File.dirname(__FILE__)), "..", "lib", "costagent")
 
 class CostAgentTest < Test::Unit::TestCase
+  class TestCache
+    def initialize
+      @cache = {}
+    end
+
+    def cache_key(subdomain, resource, identifier)
+      "#{subdomain}_#{resource}_#{identifier}"
+    end
+
+    def exists?(subdomain, resource, identifier)
+      @cache.keys.include?(self.cache_key(subdomain, resource, identifier))
+    end
+
+    def get(subdomain, resource, identifier)
+      @cache[self.cache_key(subdomain, resource, identifier)]
+    end
+
+    def set(subdomain, resource, identifier, value)
+      @cache[self.cache_key(subdomain, resource, identifier)] = value
+    end
+  
+    def clear!
+      @cache = {}
+    end
+  end
+
+  CostAgent.cache_provider = TestCache.new
+
   context "initializing costagent" do
     should "raise error if no subdomain is specified" do
       ex = assert_raises RuntimeError do
@@ -37,6 +65,7 @@ class CostAgentTest < Test::Unit::TestCase
 
   context "request to query projects" do
     setup do
+      CostAgent.cache_provider.clear!
       setup_projects_test_response
     end
     
@@ -60,6 +89,7 @@ class CostAgentTest < Test::Unit::TestCase
 
   context "request to query all projects" do
     setup do
+      CostAgent.cache_provider.clear!
       setup_projects_test_response("all")
     end
     
@@ -91,10 +121,12 @@ class CostAgentTest < Test::Unit::TestCase
 
   context "request to query timeslips" do
     setup do
+      CostAgent.cache_provider.clear!
       @start = DateTime.now - 1
       @end = DateTime.now + 1
       setup_timeslips_test_response("view=#{@start.strftime("%Y-%m-%d")}_#{@end.strftime("%Y-%m-%d")}")
       setup_projects_test_response("all")
+      setup_tasks_test_response(1)
     end
 
     should "parse response for timeslips" do
@@ -119,8 +151,9 @@ class CostAgentTest < Test::Unit::TestCase
 
   context "request to query tasks for a given project" do
     setup do
-      setup_tasks_test_response(1)
+      CostAgent.cache_provider.clear!
       setup_projects_test_response("all")
+      setup_tasks_test_response(1)
     end
 
     should "parse response for tasks" do
@@ -143,10 +176,12 @@ class CostAgentTest < Test::Unit::TestCase
 
   context "request to query time worked" do
     setup do
+      CostAgent.cache_provider.clear!
       @start = DateTime.now - 1
       @end = DateTime.now + 1
       setup_timeslips_test_response("view=#{@start.strftime("%Y-%m-%d")}_#{@end.strftime("%Y-%m-%d")}")
       setup_projects_test_response("all")
+      setup_tasks_test_response(1)
     end
 
     should "return the right time for the timeslips" do
@@ -156,10 +191,12 @@ class CostAgentTest < Test::Unit::TestCase
   
   context "request to query amount earnt" do
     setup do
+      CostAgent.cache_provider.clear!
       @start = DateTime.now - 1
       @end = DateTime.now + 1
       setup_timeslips_test_response("view=#{@start.strftime("%Y-%m-%d")}_#{@end.strftime("%Y-%m-%d")}")
       setup_projects_test_response("all")
+      setup_tasks_test_response(1)
     end
 
     should "return the right amount for the timeslips" do
@@ -168,6 +205,10 @@ class CostAgentTest < Test::Unit::TestCase
   end
 
   context "request to query USD exchange rate" do
+    setup do
+      CostAgent.cache_provider.clear!
+    end
+
     should "parse response from xe.com" do
       Kernel.expects(:open).with("http://www.xe.com").returns("<a id=\"USDGBP31\">1.48095</a>")
       assert_equal 1.48095, CostAgent.usd_rate
@@ -182,6 +223,7 @@ class CostAgentTest < Test::Unit::TestCase
 
   context "request to query user_id" do
     setup do
+      CostAgent.cache_provider.clear!
       setup_test_response("", "verify", nil, {:user_id => "12345"})
     end
     
@@ -192,6 +234,7 @@ class CostAgentTest < Test::Unit::TestCase
 
   context "request to query all invoices" do
     setup do
+      CostAgent.cache_provider.clear!
       setup_invoices_test_response
     end
     
@@ -283,8 +326,6 @@ EOF
 </timeslips>
 EOF
     setup_test_response(xml, "timeslips", parameters)
-    setup_tasks_test_response(1)
-    setup_tasks_test_response(1)
   end
 
   def setup_tasks_test_response(project_id)
