@@ -12,6 +12,8 @@ This isn't meant to be an entire Ruby library for the FA API - this is simply su
 
 This assumes that when calculating money earnt, you want it in GBP, and it only copes with calculating timeslips either in GBP, or in USD (which is converted using xe.com where possible).
 
+Version 0.2.0 introduces some breaking changes to the existing API - namely moving from structs to dedicated classes backed by hashes for the FreeAgent resources. It also introduces a couple of new methods, and the ability for a third party caching provider to be plugged in - but this now means that there is NO in memory caching of anything (such as projects) at all. In short, just using this library and not supplying even a basic cache provider will mean that every single request will result in an HTTP call. Some default caching providers coming soon.
+
 == SYNOPSIS:
 
 To initialize:
@@ -19,6 +21,12 @@ To initialize:
 costagent = CostAgent.new subdomain, username, password
 
 (remember you need to enable API access from within your FreeAgent account)
+
+To set a caching provider to limit repeat lookups to FreeAgent:
+
+CostAgent.cache_provider = MyCacheProvider.new
+
+(see the tests for a reference in memory cache provider)
 
 To see all active projects:
 
@@ -51,6 +59,10 @@ invoice = costagent.invoice(id)
 To return your FA user ID:
 
 costagent.user_id
+
+And to return all details about the logged in user:
+
+costagent.user
 
 To return a total of the amount of hours worked for a specific timeframe:
 
