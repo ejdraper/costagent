@@ -100,7 +100,9 @@ class CostAgent
           # Build the timeslip out using the timeslip data and the project it's tied to
           Timeslip.new(
             :id => (timeslip/"id").text.to_i,
+            :project_id => project.id,
             :project => project,
+            :task_id => task.id,
             :task => task,
             :hours => hours,
             :date => DateTime.parse((timeslip/"dated-on").text),
@@ -129,6 +131,7 @@ class CostAgent
         Task.new(
           :id => (task/"id").text.to_i,
           :name => (task/"name").text,
+          :project_id => project.id,
           :project => project,
           :hourly_billing_rate => hourly_rate,
           :daily_billing_rate => daily_rate,
@@ -145,19 +148,23 @@ class CostAgent
           price = (item/"price").first.inner_text.to_f
           quantity = (item/"quantity").first.inner_text.to_f
           cost = price * quantity
+          project = self.project((item/"project-id").first.inner_text.to_i)
           InvoiceItem.new(
             :id => (item/"id").first.inner_text.to_i,
             :invoice_id => (item/"invoice-id").first.inner_text.to_i,
-            :project_id => (item/"project-id").first.inner_text.to_i,
+            :project_id => project.id,
+            :project => project,
             :item_type => (item/"item-type").first.inner_text,
             :description => (item/"description").first.inner_text,
             :price => price,
             :quantity => quantity,
             :cost => cost)
         end
+        project = self.project((invoice/"project-id").first.inner_text.to_i)
         Invoice.new(
           :id => (invoice/"id").first.inner_text.to_i,
-          :project_id => (invoice/"project-id").first.inner_text.to_i,
+          :project_id => project.id,
+          :project => project,
           :description => (invoice/"description").first.inner_text,
           :reference => (invoice/"reference").text,
           :amount => (invoice/"net-value").text.to_f,

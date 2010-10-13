@@ -236,6 +236,7 @@ class CostAgentTest < Test::Unit::TestCase
     setup do
       CostAgent.cache_provider.clear!
       setup_invoices_test_response
+      setup_projects_test_response("all")
     end
     
     should "parse response for invoices" do
