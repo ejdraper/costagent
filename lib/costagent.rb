@@ -11,7 +11,8 @@ class CostAgent
     attr_accessor :data
 
     def initialize(data = {})
-      @data = data
+      @data = {}
+      data.keys.each { |key| @data[key.to_s] = data[key] }
     end
 
     def method_missing(name, *args)
@@ -19,11 +20,11 @@ class CostAgent
       if key[key.length - 1] == "="
         @data[key[0...key.length - 1]] = args.first
       end
-      @data[key] || @data[key.to_sym]
+      @data[key]
     end
 
     def id
-      @data["id"] || @data[:id]
+      @data["id"]
     end
   end
 
