@@ -21,6 +21,10 @@ class CostAgent
       end
       @data[key] || @data[key.to_sym]
     end
+
+    def id
+      @data["id"] || @data[:id]
+    end
   end
 
   # Our FA data types
