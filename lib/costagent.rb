@@ -108,7 +108,7 @@ class CostAgent
             :id => (timeslip/"id").text.to_i,
             :project_id => project.id,
             :project => project,
-            :task_id => task.id,
+            :task_id => task.nil? ? nil : task.id,
             :task => task,
             :hours => hours,
             :date => DateTime.parse((timeslip/"dated-on").text),
