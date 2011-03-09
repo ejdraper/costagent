@@ -35,6 +35,7 @@ class CostAgent
   class Invoice < Base; end
   class InvoiceItem < Base; end
   class User < Base; end
+  class Contact < Base; end
 
   # Our configuration for FA access
   attr_accessor :subdomain, :username, :password
@@ -79,6 +80,7 @@ class CostAgent
         daily_rate = (billing_period == "hour" ? billing_rate * hours_per_day : billing_rate)
         Project.new(
           :id => (project/"id").text.to_i,
+          :contact_id => (project/"contact-id").text.to_i,
           :name => (project/"name").text,
           :currency => (project/"currency").text,
           :hourly_billing_rate => hourly_rate,
@@ -185,6 +187,40 @@ class CostAgent
   # This returns the specific invoice by ID
   def invoice(id)
     self.invoices.detect { |i| i.id == id }
+  end
+
+  # This returns all contacts
+  def contacts(reload = false)
+    self.cache(CostAgent::Contact, :all, reload) do
+      (self.api("contacts")/"contact").collect do |contact|
+        projects = self.projects(:all, reload).select { |p| p.contact_id == (contact/"id").first.inner_text.to_i }
+        Contact.new(
+          :id => (contact/"id").first.inner_text.to_i,
+          :organisation_name => (contact/"organisation-name").first.inner_text,
+          :first_name => (contact/"first-name").first.inner_text,
+          :last_name => (contact/"last-name").first.inner_text,
+          :address1 => (contact/"address1").first.inner_text,
+          :address2 => (contact/"address2").first.inner_text,
+          :address3 => (contact/"address3").first.inner_text,
+          :town => (contact/"town").first.inner_text,
+          :region => (contact/"region").first.inner_text,
+          :country => (contact/"country").first.inner_text,
+          :postcode => (contact/"postcode").first.inner_text,
+          :phone_number => (contact/"phone-number").first.inner_text,
+          :email => (contact/"email").first.inner_text,
+          :billing_email => (contact/"billing-email").first.inner_text,
+          :contact_name_on_invoices => (contact/"contact-name-on-invoices").first.inner_text == "true",
+          :sales_tax_registration_number => (contact/"sales-tax-registration-number").first.inner_text,
+          :uses_contact_invoice_sequence => (contact/"uses-contact-invoice-sequence").first.inner_text == "true",
+          :account_balance => (contact/"account-balance").first.inner_text.to_f,
+          :projects => projects)
+      end
+    end
+  end
+
+  # This returns the specific contact by ID
+  def contact(id)
+    self.contacts.detect { |c| c.id == id }
   end
 
   # This contains the logged in user information for the configured credentials

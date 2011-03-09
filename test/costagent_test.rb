@@ -97,12 +97,14 @@ class CostAgentTest < Test::Unit::TestCase
       projects = @costagent.projects("all")
       assert_equal 2, projects.length
       assert_equal 1, projects.first.id
+      assert_equal 1, projects.first.contact_id
       assert_equal "test project", projects.first.name
       assert_equal "GBP", projects.first.currency
       assert_equal 45.0, projects.first.hourly_billing_rate
       assert_equal 360.0, projects.first.daily_billing_rate
       assert_equal 8.0, projects.first.hours_per_day
       assert_equal 2, projects.last.id
+      assert_equal 1, projects.last.contact_id
       assert_equal "test project 2", projects.last.name
       assert_equal "GBP", projects.last.currency
       assert_equal 50.0, projects.last.hourly_billing_rate
@@ -279,11 +281,67 @@ class CostAgentTest < Test::Unit::TestCase
     end
   end
 
+  context "request to query all contacts" do
+    setup do
+      CostAgent.cache_provider.clear!
+      setup_contacts_test_response
+      setup_projects_test_response("all")
+    end
+    
+    should "parse response for contacts" do
+      contacts = @costagent.contacts
+      assert_equal 1, contacts.length
+      assert_equal 1, contacts.first.id
+      assert_equal 2, contacts.first.projects.length
+      assert_equal "Test Ltd", contacts.first.organisation_name
+      assert_equal "Test", contacts.first.first_name
+      assert_equal "Testerson", contacts.first.last_name
+      assert_equal "Test Address 1", contacts.first.address1
+      assert_equal "Test Address 2", contacts.first.address2
+      assert_equal "Test Address 3", contacts.first.address3
+      assert_equal "Test Town", contacts.first.town
+      assert_equal "Test Region", contacts.first.region
+      assert_equal "United Kingdom", contacts.first.country
+      assert_equal "Test Postcode", contacts.first.postcode
+      assert_equal "01234 567890", contacts.first.phone_number
+      assert_equal "test@test.com", contacts.first.email
+      assert_equal "test@test.com", contacts.first.billing_email
+      assert_equal true, contacts.first.contact_name_on_invoices
+      assert_equal "1234", contacts.first.sales_tax_registration_number
+      assert_equal true, contacts.first.uses_contact_invoice_sequence
+      assert_equal 1000.0, contacts.first.account_balance
+    end
+
+    should "lookup a single contact" do
+      contact = @costagent.contact(1)
+      assert_equal 1, contact.id
+      assert_equal 2, contact.projects.length
+      assert_equal "Test Ltd", contact.organisation_name
+      assert_equal "Test", contact.first_name
+      assert_equal "Testerson", contact.last_name
+      assert_equal "Test Address 1", contact.address1
+      assert_equal "Test Address 2", contact.address2
+      assert_equal "Test Address 3", contact.address3
+      assert_equal "Test Town", contact.town
+      assert_equal "Test Region", contact.region
+      assert_equal "United Kingdom", contact.country
+      assert_equal "Test Postcode", contact.postcode
+      assert_equal "01234 567890", contact.phone_number
+      assert_equal "test@test.com", contact.email
+      assert_equal "test@test.com", contact.billing_email
+      assert_equal true, contact.contact_name_on_invoices
+      assert_equal "1234", contact.sales_tax_registration_number
+      assert_equal true, contact.uses_contact_invoice_sequence
+      assert_equal 1000.0, contact.account_balance    
+    end
+  end
+
   def setup_projects_test_response(filter = "active")
     xml =<<EOF
 <projects>
   <project>
     <id>1</id>
+    <contact-id>1</contact-id>
     <name>test project</name>
     <currency>GBP</currency>
     <normal-billing-rate>45</normal-billing-rate>
@@ -292,6 +350,7 @@ class CostAgentTest < Test::Unit::TestCase
   </project>
   <project>
     <id>2</id>
+    <contact-id>1</contact-id>
     <name>test project 2</name>
     <currency>GBP</currency>
     <normal-billing-rate>400</normal-billing-rate>
@@ -382,6 +441,32 @@ EOF
 </invoices>
 EOF
     setup_test_response(xml, "invoices")
+  end
+
+  def setup_contacts_test_response
+    xml =<<EOF
+<contact>
+  <id type="integer">1</id>
+  <organisation-name>Test Ltd</organisation-name>
+  <first-name>Test</first-name>
+  <last-name>Testerson</last-name>
+  <address1>Test Address 1</address1>
+  <address2>Test Address 2</address2>
+  <address3>Test Address 3</address3>
+  <town>Test Town</town>
+  <region>Test Region</region>
+  <country>United Kingdom</country>
+  <postcode>Test Postcode</postcode>
+  <phone-number>01234 567890</phone-number>
+  <email>test@test.com</email>
+  <billing-email>test@test.com</billing-email>
+  <contact-name-on-invoices type="boolean">true</contact-name-on-invoices>
+  <sales-tax-registration-number>1234</sales-tax-registration-number>
+  <uses-contact-invoice-sequence type="boolean">true</uses-contact-invoice-sequence>
+  <account-balance>1000.00</account-balance>
+</contact>
+EOF
+    setup_test_response(xml, "contacts")
   end
 
   def setup_test_response(xml, resource, parameters = nil, headers = {})
